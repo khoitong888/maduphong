@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách mã và Chat AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .code-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .copy-btn {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        .copied::after {
+            content: 'Đã sao chép!';
+            position: absolute;
+            right: 10px;
+            top: -30px;
+            background: #10b981;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            opacity: 0;
+            animation: fadeInOut 1.5s ease;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(10px); }
+        }
+        .reisurrk-section {
+            background: linear-gradient(to right, #e0f2fe, #bae6fd);
+        }
+        .reisurk-section {
+            background: linear-gradient(to right, #f3e8ff, #d8b4fe);
+        }
+        .reisurrk-card {
+            background: linear-gradient(to right, #bae6fd, #93c5fd);
+        }
+        .reisurk-card {
+            background: linear-gradient(to right, #d8b4fe, #c084fc);
+        }
+        .reisurrk-btn {
+            background-color: #3b82f6;
+        }
+        .reisurk-btn {
+            background-color: #8b5cf6;
+        }
+        body {
+            background: linear-gradient(to bottom, #f3e8ff, #e0f2fe);
+        }
+        .container {
+            background: linear-gradient(to bottom, #d8b4fe, #bae6fd);
+        }
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 320px;
+            max-height: 450px;
+            background: linear-gradient(to bottom, #f3e8ff, #d8b4fe);
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .chat-container.open {
+            display: flex;
+            transform: scale(1);
+            opacity: 1;
+        }
+        .chat-header {
+            background-color: #8b5cf6;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1rem;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            scroll-behavior: smooth;
+        }
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .user-message {
+            background: #bae6fd;
+            margin-left: 15%;
+            text-align: right;
+        }
+        .bot-message {
+            background: #c084fc;
+            margin-right: 15%;
+            text-align: left;
+        }
+        .message-time {
+            font-size: 0.7rem;
+            color: #374151;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #e0f2fe;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #d8b4fe;
+            color: #1f2937;
+            transition: box-shadow 0.3s ease;
+        }
+        .chat-input input:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+        }
+        .chat-input button {
+            background-color: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            margin-left: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        .chat-input button:hover {
+            background-color: #7c3aed;
+        }
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #8b5cf6;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="container max-w-3xl w-full rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Danh sách mã</h1>
+        
+        <!-- Danh sách reisurrk -->
+        <div class="mb-10 reisurrk-section rounded-lg p-4">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4">Mã reisurrk</h2>
+            <div class="space-y-4" id="reisurrk-list"></div>
+        </div>
+        
+        <!-- Danh sách reisurk -->
+        <div class="reisurk-section rounded-lg p-4">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">Mã reisurk</h2>
+            <div class="space-y-4" id="reisurk-list"></div>
+        </div>
+    </div>
+
+    <!-- Chat UI -->
+    <div class="chat-toggle" onclick="toggleChat()">🗨️</div>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">Chat với Beta AI</div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Nhập câu hỏi...">
+            <button onclick="sendMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const codes = [
+            { code: 't0dc06uki', name: 'reisurrk' },
+            { code: '8p4fxqil0', name: 'reisurrk' },
+            { code: '5yhznopjd', name: 'reisurrk' },
+            { code: 'bwjxei2tc', name: 'reisurrk' },
+            { code: '20pmgzx43', name: 'reisurrk' },
+            { code: 'hsoqpf6nd', name: 'reisurrk' },
+            { code: 'le5uxv8w3', name: 'reisurrk' },
+            { code: 'xdsde8vch', name: 'reisurrk' },
+            { code: 'kuhu5bovm', name: 'reisurrk' },
+            { code: '9cuyoqhvm', name: 'reisurrk' },
+            { code: 'l1w0lqp31', name: 'reisurk' },
+            { code: 'nwy4ede0s', name: 'reisurk' },
+            { code: '1887uitjs', name: 'reisurk' },
+            { code: '94yrnjakx', name: 'reisurk' },
+            { code: 'sc44no9g9', name: 'reisurk' },
+            { code: '36z930090', name: 'reisurk' },
+            { code: 'a9g5k0tel', name: 'reisurk' },
+            { code: 'rsroh6xoz', name: 'reisurk' },
+            { code: 'bhipk4nss', name: 'reisurk' },
+            { code: 'rfwajh3g0', name: 'reisurk' }
+        ];
+
+        const reisurrkList = document.getElementById('reisurrk-list');
+        const reisurkList = document.getElementById('reisurk-list');
+
+        codes.forEach(item => {
+            const div = document.createElement('div');
+            div.className = `code-card flex items-center justify-between p-4 rounded-lg ${item.name === 'reisurrk' ? 'reisurrk-card' : 'reisurk-card'}`;
+            div.innerHTML = `
+                <span class="text-lg font-mono text-gray-800">${item.code}</span>
+                <button class="copy-btn ${item.name === 'reisurrk' ? 'reisurrk-btn' : 'reisurk-btn'} text-white px-4 py-2 rounded-lg" onclick="copyToClipboard('${item.code}', this)">Sao chép</button>
+            `;
+            
+            if (item.name === 'reisurrk') {
+                reisurrkList.appendChild(div);
+            } else {
+                reisurkList.appendChild(div);
+            }
+        });
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                button.classList.add('copied', 'bg-green-500');
+                setTimeout(() => {
+                    button.classList.remove('copied', 'bg-green-500');
+                    button.classList.add(button.classList.contains('reisurrk-btn') ? 'reisurrk-btn' : 'reisurk-btn');
+                }, 1500);
+            }).catch(err => {
+                console.error('Lỗi sao chép:', err);
+            });
+        }
+
+        const chatContainer = document.getElementById('chat-container');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+
+        function toggleChat() {
+            chatContainer.classList.toggle('open');
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'chat-message user-message';
+            userMessage.innerHTML = `
+                ${message}
+                <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+            `;
+            chatMessages.appendChild(userMessage);
+
+            chatInput.value = '';
+
+            try {
+                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfr7202t1xvByWLem6McWbD2O_Lh_NctE', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: message }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Lỗi ${response.status}: ${errorData.error.message || 'Không thể kết nối với Gemini AI'}`);
+                }
+
+                const data = await response.json();
+                const botResponse = data.candidates[0].content.parts[0].text;
+
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chat-message bot-message';
+                botMessage.innerHTML = `
+                    ${botResponse}
+                    <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                `;
+                chatMessages.appendChild(botMessage);
+            } catch (error) {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'chat-message bot-message';
+                errorMessage.innerHTML = `
+                    Lỗi: ${error.message}. Vui lòng kiểm tra khóa API hoặc kết nối mạng.
+                    <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                `;
+                chatMessages.appendChild(errorMessage);
+                console.error('Lỗi:', error);
+            }
+
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        }
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
