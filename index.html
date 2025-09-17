@@ -306,7 +306,7 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`Lỗi ${response.status}: ${errorData.error.message || 'Không thể kết nối với Gemini AI'}`);
+                    throw new Error(`Lỗi ${response.status}: ${errorData.error.message || 'Không thể kết nối với Beta AI'}`);
                 }
 
                 const data = await response.json();
