@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code List & AI Chat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@7.0.0/lib/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@latest/lib/marked.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #4c1d95, #3b82f6, #db2777);
@@ -115,15 +115,16 @@
 
         .chat-container {
             position: fixed;
-            bottom: 80px;
+            top: 80px;
             right: 20px;
             width: 90%;
             max-width: 450px;
             max-height: 80vh;
-            background: linear-gradient(145deg, #1e293b, #2d3748);
+            background: rgba(30, 41, 59, 0.2);
             border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.5);
-            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(139, 92, 246, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -160,8 +161,9 @@
             overflow-y: auto;
             font-size: 0.95rem;
             scroll-behavior: smooth;
-            background: rgba(30, 41, 59, 0.95);
+            background: rgba(30, 41, 59, 0.3);
             color: #f1f5f9;
+            backdrop-filter: blur(10px);
         }
 
         .chat-message {
@@ -179,11 +181,12 @@
         }
 
         .user-message {
-            background: #1e3a8a;
+            background: rgba(30, 64, 175, 0.7);
             margin-left: 25%;
             text-align: right;
             color: #f1f5f9;
             position: relative;
+            backdrop-filter: blur(8px);
         }
 
         .user-message::before {
@@ -196,11 +199,12 @@
         }
 
         .bot-message {
-            background: #4b5563;
+            background: rgba(75, 85, 99, 0.7);
             margin-right: 25%;
             text-align: left;
             color: #f1f5f9;
             position: relative;
+            backdrop-filter: blur(8px);
         }
 
         .bot-message::before {
@@ -243,8 +247,9 @@
             flex-direction: column;
             gap: 10px;
             padding: 12px;
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.2);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .chat-input input[type="text"] {
@@ -252,7 +257,7 @@
             padding: 12px;
             border: none;
             border-radius: 10px;
-            background: #1e293b;
+            background: rgba(30, 41, 59, 0.5);
             color: #f1f5f9;
             transition: box-shadow 0.3s ease;
         }
@@ -312,7 +317,7 @@
 
         .chat-toggle {
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             right: 20px;
             background: linear-gradient(135deg, #6d28d9, #8b5cf6);
             color: white;
@@ -325,11 +330,18 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.5);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1001;
         }
 
         .chat-toggle:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.7);
+        }
+
+        .chat-toggle img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
         }
 
         .image-preview {
@@ -382,13 +394,14 @@
         }
 
         pre {
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.5);
             padding: 12px;
             border-radius: 10px;
             overflow-x: auto;
             color: #e2e8f0;
             font-size: 0.9rem;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(8px);
         }
 
         code {
@@ -406,19 +419,57 @@
             text-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1.5rem;
+            }
+            .chat-container {
+                width: 95%;
+                top: 70px;
+                right: 10px;
+                max-height: 70vh;
+            }
+            .chat-toggle {
+                width: 50px;
+                height: 50px;
+                top: 10px;
+                right: 10px;
+            }
+            .chat-toggle img {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
             .container {
                 padding: 1rem;
                 margin: 1rem;
             }
             .chat-container {
-                width: 95%;
-                bottom: 70px;
-                right: 10px;
+                width: 100%;
+                top: 60px;
+                right: 0;
+                left: 0;
+                margin: 0 auto;
+                max-width: none;
             }
             .chat-toggle {
-                width: 50px;
-                height: 50px;
+                width: 45px;
+                height: 45px;
+                top: 10px;
+                right: 10px;
+            }
+            .chat-toggle img {
+                width: 24px;
+                height: 24px;
+            }
+            .chat-messages {
+                font-size: 0.9rem;
+            }
+            .chat-header {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -442,7 +493,9 @@
     </div>
 
     <!-- Chat UI -->
-    <div class="chat-toggle" onclick="window.toggleChat()">🗨️</div>
+    <div class="chat-toggle" onclick="window.toggleChat()">
+        <img src="https://via.placeholder.com/32?text=AI" alt="Chat Logo">
+    </div>
     <div class="chat-container" id="chat-container">
         <div class="chat-header">
             <span id="chat-header-title">Chat with Beta AI</span>
@@ -456,7 +509,7 @@
         </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Enter your question...">
+            <input type="text" id="chat-input" placeholder="Enter your question or paste an image...">
             <div class="input-group">
                 <label for="image-input">📷 Upload Image</label>
                 <input type="file" id="image-input" accept="image/*">
@@ -517,13 +570,13 @@
         });
         animateParticles();
 
-        // Kiểm tra xem marked có được định nghĩa không
+        // Kiểm tra marked
         if (typeof marked === 'undefined') {
-            console.error('Marked library not loaded. Please check network or CDN.');
-            alert('Error: Could not load marked library. Some formatting features may not work.');
+            console.error('Marked library not loaded.');
+            alert('Error: Could not load marked library.');
         }
 
-        // Định nghĩa các hàm trong phạm vi toàn cục
+        // Định nghĩa các hàm toàn cục
         window.clearChatHistory = function() {
             chatHistory = [];
             chatMessages.innerHTML = '';
@@ -600,7 +653,7 @@
             reisurkTitle.textContent = lang === 'en' ? 'Reisurk Codes' : 'Mã reisurk';
             chatHeaderTitle.textContent = lang === 'en' ? 'Chat with Beta AI' : 'Chat với Beta AI';
             clearHistoryBtn.textContent = lang === 'en' ? 'Clear History' : 'Xóa lịch sử';
-            chatInput.placeholder = lang === 'en' ? 'Enter your question...' : 'Nhập câu hỏi...';
+            chatInput.placeholder = lang === 'en' ? 'Enter your question or paste an image...' : 'Nhập câu hỏi hoặc dán ảnh...';
             document.querySelector('label[for="image-input"]').textContent = lang === 'en' ? '📷 Upload Image' : '📷 Tải ảnh';
             loadChatHistory();
         }
@@ -672,7 +725,7 @@
             chatMessages.innerHTML = '';
             chatHistory.forEach((msg, index) => {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${msg.type}-message`;
+                messageDiv.className = `chat-message ${msg.type}-message prose prose-invert max-w-none`;
                 const textContent = typeof marked !== 'undefined' ? marked.parse(msg.text) : msg.text;
                 const isFavorite = favorites.some(fav => fav.text === msg.text && fav.time === msg.time);
                 const senderName = msg.type === 'user' ? (lang === 'en' ? 'You' : 'Bạn') : 'Beta AI 🤖';
@@ -701,6 +754,26 @@
             return new Blob([new Uint8Array(array)], { type: mime });
         }
 
+        // Xử lý sự kiện dán ảnh
+        chatInput.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        selectedImage = event.target.result;
+                        imagePreview.src = selectedImage;
+                        imagePreview.style.display = 'block';
+                        showToast(languageSelect.value === 'en' ? 'Image pasted successfully!' : 'Đã dán ảnh thành công!');
+                    };
+                    reader.readAsDataURL(file);
+                    e.preventDefault(); // Ngăn chặn dán nội dung khác
+                    break;
+                }
+            }
+        });
+
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -709,6 +782,7 @@
                     selectedImage = event.target.result;
                     imagePreview.src = selectedImage;
                     imagePreview.style.display = 'block';
+                    showToast(languageSelect.value === 'en' ? 'Image uploaded successfully!' : 'Đã tải ảnh thành công!');
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -738,7 +812,7 @@
             chatHistory.push(userMessage);
 
             const userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'chat-message user-message';
+            userMessageDiv.className = 'chat-message user-message prose prose-invert max-w-none';
             const userTextContent = typeof marked !== 'undefined' ? marked.parse(message) : message;
             userMessageDiv.setAttribute('data-sender', lang === 'en' ? 'You' : 'Bạn');
             userMessageDiv.innerHTML = selectedImage ? `
@@ -769,9 +843,9 @@
                     const arrayBuffer = await blob.arrayBuffer();
                     const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
                     parts.push({
-                        inlineData: {
+                        inline_data: {
                             data: base64String,
-                            mimeType: blob.type
+                            mime_type: blob.type
                         }
                     });
                 }
@@ -792,13 +866,16 @@
                 }
 
                 const data = await response.json();
+                if (!data.candidates || !data.candidates.length) {
+                    throw new Error('No response from AI');
+                }
                 const botResponse = data.candidates[0].content.parts[0].text;
                 const botMessage = { type: 'bot', text: botResponse, time };
                 chatHistory.push(botMessage);
 
                 typingIndicator.remove();
                 const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot-message';
+                botMessageDiv.className = 'chat-message bot-message prose prose-invert max-w-none';
                 const botTextContent = typeof marked !== 'undefined' ? marked.parse(botResponse) : botResponse;
                 botMessageDiv.setAttribute('data-sender', 'Beta AI 🤖');
                 botMessageDiv.innerHTML = `
@@ -814,7 +891,7 @@
                 chatHistory.push(errorMessage);
 
                 const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.className = 'chat-message bot-message';
+                errorMessageDiv.className = 'chat-message bot-message prose prose-invert max-w-none';
                 const errorTextContent = typeof marked !== 'undefined' ? marked.parse(errorMessage.text) : errorMessage.text;
                 errorMessageDiv.setAttribute('data-sender', 'Beta AI 🤖');
                 errorMessageDiv.innerHTML = `
