@@ -1,27 +1,71 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách mã và Chat AI</title>
+    <title>Code List & AI Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@7.0.0/lib/marked.min.js"></script>
     <style>
+        body {
+            background: linear-gradient(135deg, #4c1d95, #3b82f6, #db2777);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            font-family: 'Inter', sans-serif;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        canvas#sparkle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: linear-gradient(145deg, #1e293b, #2d3748);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            margin: 2rem auto;
+            position: relative;
+            z-index: 1;
+        }
+
         .code-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+            padding: 1rem;
         }
+
         .code-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(59, 130, 246, 0.5);
         }
+
         .copy-btn {
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 500;
         }
+
         .copy-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
+
         .copied::after {
-            content: 'Đã sao chép!';
+            content: 'Copied!';
             position: absolute;
             right: 10px;
             top: -30px;
@@ -33,138 +77,244 @@
             opacity: 0;
             animation: fadeInOut 1.5s ease;
         }
+
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateY(10px); }
             20% { opacity: 1; transform: translateY(0); }
             80% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(10px); }
         }
+
         .reisurrk-section {
-            background: linear-gradient(to right, #e0f2fe, #bae6fd);
+            background: linear-gradient(to right, #4b5563, #6b7280);
+            border-radius: 12px;
+            padding: 1.5rem;
         }
+
         .reisurk-section {
-            background: linear-gradient(to right, #f3e8ff, #d8b4fe);
+            background: linear-gradient(to right, #3f3f46, #52525b);
+            border-radius: 12px;
+            padding: 1.5rem;
         }
+
         .reisurrk-card {
-            background: linear-gradient(to right, #bae6fd, #93c5fd);
+            background: linear-gradient(to right, #4b5563, #6b7280);
         }
+
         .reisurk-card {
-            background: linear-gradient(to right, #d8b4fe, #c084fc);
+            background: linear-gradient(to right, #3f3f46, #52525b);
         }
+
         .reisurrk-btn {
-            background-color: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
         }
+
         .reisurk-btn {
-            background-color: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
         }
-        body {
-            background: linear-gradient(to bottom, #f3e8ff, #e0f2fe);
-        }
-        .container {
-            background: linear-gradient(to bottom, #d8b4fe, #bae6fd);
-        }
+
         .chat-container {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            width: 320px;
-            max-height: 450px;
-            background: linear-gradient(to bottom, #f3e8ff, #d8b4fe);
-            border-radius: 15px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 450px;
+            max-height: 80vh;
+            background: linear-gradient(145deg, #1e293b, #2d3748);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.5);
+            backdrop-filter: blur(12px);
             display: none;
             flex-direction: column;
             overflow: hidden;
             z-index: 1000;
-            transform: scale(0.8);
+            transform: scale(0.95);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease;
         }
+
         .chat-container.open {
             display: flex;
             transform: scale(1);
             opacity: 1;
         }
+
         .chat-header {
-            background-color: #8b5cf6;
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
             color: white;
             padding: 12px;
-            font-weight: bold;
+            font-weight: 600;
             text-align: center;
-            font-size: 1.1rem;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
+            font-size: 1.25rem;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
         }
+
         .chat-messages {
             flex-grow: 1;
-            padding: 12px;
+            padding: 16px;
             overflow-y: auto;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             scroll-behavior: smooth;
+            background: rgba(30, 41, 59, 0.95);
+            color: #f1f5f9;
         }
+
         .chat-message {
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .user-message {
+            background: #1e3a8a;
+            margin-left: 25%;
+            text-align: right;
+            color: #f1f5f9;
             position: relative;
         }
-        .user-message {
-            background: #bae6fd;
-            margin-left: 15%;
-            text-align: right;
+
+        .user-message::before {
+            content: attr(data-sender);
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #93c5fd;
+            margin-bottom: 6px;
         }
+
         .bot-message {
-            background: #c084fc;
-            margin-right: 15%;
+            background: #4b5563;
+            margin-right: 25%;
             text-align: left;
+            color: #f1f5f9;
+            position: relative;
         }
+
+        .bot-message::before {
+            content: attr(data-sender);
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 6px;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            margin-left: 8px;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .favorite-btn:hover {
+            color: #f59e0b;
+            transform: scale(1.2);
+        }
+
+        .favorite {
+            color: #f59e0b;
+        }
+
         .message-time {
             font-size: 0.7rem;
-            color: #374151;
-            margin-top: 4px;
-            opacity: 0.7;
+            color: #94a3b8;
+            margin-top: 6px;
+            opacity: 0.8;
         }
+
         .chat-input {
             display: flex;
-            padding: 10px;
-            background: #e0f2fe;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: #0f172a;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .chat-input input {
+
+        .chat-input input[type="text"] {
             flex-grow: 1;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
-            background: #d8b4fe;
-            color: #1f2937;
+            background: #1e293b;
+            color: #f1f5f9;
             transition: box-shadow 0.3s ease;
         }
-        .chat-input input:focus {
+
+        .chat-input input[type="text"]:focus {
             outline: none;
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 8px rgba(167, 139, 250, 0.6);
         }
+
+        .chat-input .input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input input[type="file"] {
+            display: none;
+        }
+
+        .chat-input label {
+            background: linear-gradient(135deg, #475569, #64748b);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chat-input label:hover {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
         .chat-input button {
-            background-color: #8b5cf6;
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
-            margin-left: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.3s ease;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
+
         .chat-input button:hover {
-            background-color: #7c3aed;
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
         }
+
+        .chat-input button:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .chat-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #8b5cf6;
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
             color: white;
             width: 60px;
             height: 60px;
@@ -173,49 +323,227 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.5);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .chat-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.7);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 10px;
+            margin-top: 8px;
+            display: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading .loading-spinner {
+            display: inline-block;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: toastInOut 3s ease;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+
+        @keyframes toastInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            color: #e2e8f0;
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+
+        .typing-indicator {
+            color: #94a3b8;
+            font-style: italic;
+            margin-bottom: 16px;
+            padding: 12px;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+            .chat-container {
+                width: 95%;
+                bottom: 70px;
+                right: 10px;
+            }
+            .chat-toggle {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-    <div class="container max-w-3xl w-full rounded-lg shadow-lg p-6">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Danh sách mã</h1>
-        
+    <canvas id="sparkle-canvas"></canvas>
+    <div class="container max-w-4xl w-full rounded-lg">
+        <h1 class="text-3xl font-bold text-center text-slate-100 mb-8" id="page-title">Code List</h1>
+
         <!-- Danh sách reisurrk -->
-        <div class="mb-10 reisurrk-section rounded-lg p-4">
-            <h2 class="text-2xl font-semibold text-blue-700 mb-4">Mã reisurrk</h2>
+        <div class="mb-10 reisurrk-section">
+            <h2 class="text-2xl font-semibold text-blue-300 mb-4" id="reisurrk-title">Reisurrk Codes</h2>
             <div class="space-y-4" id="reisurrk-list"></div>
         </div>
-        
+
         <!-- Danh sách reisurk -->
-        <div class="reisurk-section rounded-lg p-4">
-            <h2 class="text-2xl font-semibold text-purple-700 mb-4">Mã reisurk</h2>
+        <div class="reisurk-section">
+            <h2 class="text-2xl font-semibold text-purple-300 mb-4" id="reisurk-title">Reisurk Codes</h2>
             <div class="space-y-4" id="reisurk-list"></div>
         </div>
     </div>
 
     <!-- Chat UI -->
-    <div class="chat-toggle" onclick="toggleChat()">🗨️</div>
+    <div class="chat-toggle" onclick="window.toggleChat()">🗨️</div>
     <div class="chat-container" id="chat-container">
-        <div class="chat-header">Chat với Beta AI</div>
+        <div class="chat-header">
+            <span id="chat-header-title">Chat with Beta AI</span>
+            <div>
+                <select id="language-select" class="bg-transparent text-white text-sm">
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                </select>
+                <button onclick="window.clearChatHistory()" class="text-sm text-white hover:text-gray-300 ml-2" id="clear-history-btn">Clear History</button>
+            </div>
+        </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Nhập câu hỏi...">
-            <button onclick="sendMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
-            </button>
+            <input type="text" id="chat-input" placeholder="Enter your question...">
+            <div class="input-group">
+                <label for="image-input">📷 Upload Image</label>
+                <input type="file" id="image-input" accept="image/*">
+                <button onclick="sendMessage()" id="send-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    <span class="loading-spinner"></span>
+                </button>
+            </div>
+            <img id="image-preview" class="image-preview" alt="Image Preview">
         </div>
     </div>
 
     <script>
+        // Sparkle effect
+        const canvas = document.getElementById('sparkle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 3 + 1,
+                speedX: Math.random() * 0.5 - 0.25,
+                speedY: Math.random() * 0.5 - 0.25,
+                opacity: Math.random() * 0.5 + 0.3
+            };
+        }
+
+        for (let i = 0; i < 50; i++) {
+            particles.push(createParticle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+                    Object.assign(p, createParticle());
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        animateParticles();
+
+        // Kiểm tra xem marked có được định nghĩa không
+        if (typeof marked === 'undefined') {
+            console.error('Marked library not loaded. Please check network or CDN.');
+            alert('Error: Could not load marked library. Some formatting features may not work.');
+        }
+
+        // Định nghĩa các hàm trong phạm vi toàn cục
+        window.clearChatHistory = function() {
+            chatHistory = [];
+            chatMessages.innerHTML = '';
+            imagePreview.style.display = 'none';
+            selectedImage = null;
+            saveChatHistory();
+            showToast(languageSelect.value === 'en' ? 'Chat history cleared!' : 'Đã xóa lịch sử trò chuyện!');
+        };
+
+        window.toggleFavoriteByIndex = function(index) {
+            const message = chatHistory[index];
+            if (message) {
+                toggleFavorite(message);
+            }
+        };
+
+        window.toggleChat = function() {
+            chatContainer.classList.toggle('open');
+        };
+
         const codes = [
             { code: 't0dc06uki', name: 'reisurrk' },
             { code: '8p4fxqil0', name: 'reisurrk' },
@@ -241,100 +569,276 @@
 
         const reisurrkList = document.getElementById('reisurrk-list');
         const reisurkList = document.getElementById('reisurk-list');
+        const chatContainer = document.getElementById('chat-container');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const imageInput = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
+        const sendBtn = document.getElementById('send-btn');
+        const languageSelect = document.getElementById('language-select');
+        const chatHeaderTitle = document.getElementById('chat-header-title');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const pageTitle = document.getElementById('page-title');
+        const reisurrkTitle = document.getElementById('reisurrk-title');
+        const reisurkTitle = document.getElementById('reisurk-title');
 
-        codes.forEach(item => {
-            const div = document.createElement('div');
-            div.className = `code-card flex items-center justify-between p-4 rounded-lg ${item.name === 'reisurrk' ? 'reisurrk-card' : 'reisurk-card'}`;
-            div.innerHTML = `
-                <span class="text-lg font-mono text-gray-800">${item.code}</span>
-                <button class="copy-btn ${item.name === 'reisurrk' ? 'reisurrk-btn' : 'reisurk-btn'} text-white px-4 py-2 rounded-lg" onclick="copyToClipboard('${item.code}', this)">Sao chép</button>
-            `;
-            
-            if (item.name === 'reisurrk') {
-                reisurrkList.appendChild(div);
-            } else {
-                reisurkList.appendChild(div);
-            }
-        });
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let selectedImage = null;
+        let isProcessing = false;
+
+        // Đảm bảo favorites là mảng
+        if (!Array.isArray(favorites)) {
+            favorites = [];
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function updateLanguageUI() {
+            const lang = languageSelect.value;
+            pageTitle.textContent = lang === 'en' ? 'Code List' : 'Danh sách mã';
+            reisurrkTitle.textContent = lang === 'en' ? 'Reisurrk Codes' : 'Mã reisurrk';
+            reisurkTitle.textContent = lang === 'en' ? 'Reisurk Codes' : 'Mã reisurk';
+            chatHeaderTitle.textContent = lang === 'en' ? 'Chat with Beta AI' : 'Chat với Beta AI';
+            clearHistoryBtn.textContent = lang === 'en' ? 'Clear History' : 'Xóa lịch sử';
+            chatInput.placeholder = lang === 'en' ? 'Enter your question...' : 'Nhập câu hỏi...';
+            document.querySelector('label[for="image-input"]').textContent = lang === 'en' ? '📷 Upload Image' : '📷 Tải ảnh';
+            loadChatHistory();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function renderCodes() {
+            reisurrkList.innerHTML = '';
+            reisurkList.innerHTML = '';
+            const lang = languageSelect.value;
+            codes.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `code-card flex items-center justify-between p-4 rounded-lg ${item.name === 'reisurrk' ? 'reisurrk-card' : 'reisurk-card'}`;
+                div.innerHTML = `
+                    <code class="text-lg font-mono text-slate-200 bg-gray-800 px-3 py-1 rounded">${item.code}</code>
+                    <button class="copy-btn ${item.name === 'reisurrk' ? 'reisurrk-btn' : 'reisurk-btn'} text-white px-4 py-2 rounded-lg" onclick="copyToClipboard('${item.code}', this)">${lang === 'en' ? 'Copy' : 'Sao chép'}</button>
+                `;
+                if (item.name === 'reisurrk') {
+                    reisurrkList.appendChild(div);
+                } else {
+                    reisurkList.appendChild(div);
+                }
+            });
+        }
 
         function copyToClipboard(text, button) {
             navigator.clipboard.writeText(text).then(() => {
                 button.classList.add('copied', 'bg-green-500');
+                showToast(languageSelect.value === 'en' ? 'Code copied!' : 'Đã sao chép mã!');
                 setTimeout(() => {
                     button.classList.remove('copied', 'bg-green-500');
                     button.classList.add(button.classList.contains('reisurrk-btn') ? 'reisurrk-btn' : 'reisurk-btn');
                 }, 1500);
             }).catch(err => {
-                console.error('Lỗi sao chép:', err);
+                console.error('Copy error:', err);
+                showToast(languageSelect.value === 'en' ? 'Copy failed!' : 'Lỗi khi sao chép!');
             });
         }
 
-        const chatContainer = document.getElementById('chat-container');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-
-        function toggleChat() {
-            chatContainer.classList.toggle('open');
+        function saveChatHistory() {
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
         }
 
+        function saveFavorites() {
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function toggleFavorite(message) {
+            const index = favorites.findIndex(fav => fav.text === message.text && fav.time === message.time);
+            if (index === -1) {
+                favorites.push(message);
+                showToast(languageSelect.value === 'en' ? 'Added to favorites!' : 'Đã thêm vào yêu thích!');
+            } else {
+                favorites.splice(index, 1);
+                showToast(languageSelect.value === 'en' ? 'Removed from favorites!' : 'Đã xóa khỏi yêu thích!');
+            }
+            saveFavorites();
+            loadChatHistory();
+        }
+
+        function loadChatHistory() {
+            const lang = languageSelect.value;
+            chatMessages.innerHTML = '';
+            chatHistory.forEach((msg, index) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${msg.type}-message`;
+                const textContent = typeof marked !== 'undefined' ? marked.parse(msg.text) : msg.text;
+                const isFavorite = favorites.some(fav => fav.text === msg.text && fav.time === msg.time);
+                const senderName = msg.type === 'user' ? (lang === 'en' ? 'You' : 'Bạn') : 'Beta AI 🤖';
+                messageDiv.setAttribute('data-sender', senderName);
+                messageDiv.innerHTML = msg.image ? `
+                    <img src="${msg.image}" class="max-w-full h-auto rounded-lg mb-2" alt="User uploaded image">
+                    ${textContent}
+                    <div class="message-time">${msg.time}${msg.type === 'bot' ? `<button class="favorite-btn ${isFavorite ? 'favorite' : ''}" onclick="window.toggleFavoriteByIndex(${index})">★</button>` : ''}</div>
+                ` : `
+                    ${textContent}
+                    <div class="message-time">${msg.time}${msg.type === 'bot' ? `<button class="favorite-btn ${isFavorite ? 'favorite' : ''}" onclick="window.toggleFavoriteByIndex(${index})">★</button>` : ''}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+            });
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const [header, data] = dataURL.split(',');
+            const mime = header.match(/:(.*?);/)[1];
+            const binary = atob(data);
+            const array = [];
+            for (let i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], { type: mime });
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    selectedImage = event.target.result;
+                    imagePreview.src = selectedImage;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                selectedImage = null;
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        languageSelect.addEventListener('change', () => {
+            updateLanguageUI();
+            renderCodes();
+        });
+
         async function sendMessage() {
+            if (isProcessing) return;
             const message = chatInput.value.trim();
-            if (!message) return;
+            if (!message && !selectedImage) return;
 
-            const userMessage = document.createElement('div');
-            userMessage.className = 'chat-message user-message';
-            userMessage.innerHTML = `
-                ${message}
-                <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+            isProcessing = true;
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+            sendBtn.classList.add('loading');
+
+            const lang = languageSelect.value;
+            const time = new Date().toLocaleTimeString(lang === 'en' ? 'en-US' : 'vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const userMessage = { type: 'user', text: message, time, image: selectedImage };
+            chatHistory.push(userMessage);
+
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'chat-message user-message';
+            const userTextContent = typeof marked !== 'undefined' ? marked.parse(message) : message;
+            userMessageDiv.setAttribute('data-sender', lang === 'en' ? 'You' : 'Bạn');
+            userMessageDiv.innerHTML = selectedImage ? `
+                <img src="${selectedImage}" class="max-w-full h-auto rounded-lg mb-2" alt="User uploaded image">
+                ${userTextContent}
+                <div class="message-time">${time}</div>
+            ` : `
+                ${userTextContent}
+                <div class="message-time">${time}</div>
             `;
-            chatMessages.appendChild(userMessage);
-
+            chatMessages.appendChild(userMessageDiv);
             chatInput.value = '';
+            imagePreview.style.display = 'none';
+            selectedImage = null;
+            imageInput.value = '';
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.textContent = lang === 'en' ? 'AI is thinking...' : 'AI đang suy nghĩ...';
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
 
             try {
+                const prompt = lang === 'en' ? `Please respond in English: ${message}` : message;
+                const parts = [{ text: prompt }];
+                if (selectedImage) {
+                    const blob = dataURLtoBlob(selectedImage);
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                    parts.push({
+                        inlineData: {
+                            data: base64String,
+                            mimeType: blob.type
+                        }
+                    });
+                }
+
                 const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBfr7202t1xvByWLem6McWbD2O_Lh_NctE', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: message }]
-                        }]
+                        contents: [{ parts }]
                     })
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`Lỗi ${response.status}: ${errorData.error.message || 'Không thể kết nối với Beta AI'}`);
+                    throw new Error(`Error ${response.status}: ${errorData.error.message || 'Cannot connect to Beta AI'}`);
                 }
 
                 const data = await response.json();
                 const botResponse = data.candidates[0].content.parts[0].text;
+                const botMessage = { type: 'bot', text: botResponse, time };
+                chatHistory.push(botMessage);
 
-                const botMessage = document.createElement('div');
-                botMessage.className = 'chat-message bot-message';
-                botMessage.innerHTML = `
-                    ${botResponse}
-                    <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                typingIndicator.remove();
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot-message';
+                const botTextContent = typeof marked !== 'undefined' ? marked.parse(botResponse) : botResponse;
+                botMessageDiv.setAttribute('data-sender', 'Beta AI 🤖');
+                botMessageDiv.innerHTML = `
+                    ${botTextContent}
+                    <div class="message-time">${time}<button class="favorite-btn" onclick="window.toggleFavoriteByIndex(${chatHistory.length - 1})">★</button></div>
                 `;
-                chatMessages.appendChild(botMessage);
+                chatMessages.appendChild(botMessageDiv);
+                saveChatHistory();
+                showToast(lang === 'en' ? 'Response received from AI!' : 'Đã nhận phản hồi từ AI!');
             } catch (error) {
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'chat-message bot-message';
-                errorMessage.innerHTML = `
-                    Lỗi: ${error.message}. Vui lòng kiểm tra khóa API hoặc kết nối mạng.
-                    <div class="message-time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                typingIndicator.remove();
+                const errorMessage = { type: 'bot', text: `Error: ${error.message}. Please check API key or network connection.`, time };
+                chatHistory.push(errorMessage);
+
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'chat-message bot-message';
+                const errorTextContent = typeof marked !== 'undefined' ? marked.parse(errorMessage.text) : errorMessage.text;
+                errorMessageDiv.setAttribute('data-sender', 'Beta AI 🤖');
+                errorMessageDiv.innerHTML = `
+                    ${errorTextContent}
+                    <div class="message-time">${time}<button class="favorite-btn" onclick="window.toggleFavoriteByIndex(${chatHistory.length - 1})">★</button></div>
                 `;
-                chatMessages.appendChild(errorMessage);
-                console.error('Lỗi:', error);
+                chatMessages.appendChild(errorMessageDiv);
+                saveChatHistory();
+                showToast(lang === 'en' ? 'Error connecting to AI!' : 'Lỗi khi kết nối với AI!');
             }
 
+            isProcessing = false;
+            sendBtn.disabled = false;
+            chatInput.disabled = false;
+            sendBtn.classList.remove('loading');
             chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
         }
 
+        // Initialize
+        renderCodes();
+        updateLanguageUI();
+        loadChatHistory();
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isProcessing) {
                 sendMessage();
             }
         });
